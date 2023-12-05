@@ -91,6 +91,8 @@ services:
     environment:
       - INIT_DAEMON_STEP=setup_spark
       - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    networks:
+      - spark_kafka
    
       
       
@@ -105,13 +107,16 @@ services:
       - "SPARK_MASTER=spark://spark-master:7077"
       - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
 
-  json-sender:
-    build: spark_streaming/
-    container_name: json-sender
+  spark-worker-2:
+    image: bde2020/spark-worker:3.0.0-hadoop3.2
+    container_name: spark-worker-2
     depends_on:
       - spark-master
+    ports:
+      - "8081:8081"
     environment:
-      SERVICE_PRECONDITION: "spark-master:9999"
+      - "SPARK_MASTER=spark://spark-master:7077"
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
     
 
   zookeeper:
@@ -150,16 +155,16 @@ services:
     networks:
       - spark_kafka
 
-  kafka-consumer:
-    build: kafka-consumer/
-    container_name: kafka-consumer
-    depends_on:
-      - kafka
+
+  cassandra:
+    image: cassandra:4.0
+    container_name: cassandra
     environment:
-      SERVICE_PRECONDITION: "kafka-test:9092"
-    networks:
-      - spark_kafka
-  
+    - CASSANDRA_USER=vlad
+    - CASSANDRA_PASSWORD=password 
+    ports:
+    - "9042:9042"
+
   mongo:
     container_name: mongo-1
     image: mongo

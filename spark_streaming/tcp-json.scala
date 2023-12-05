@@ -10,19 +10,21 @@ val schema = new StructType()
     .add("marketplaceUrl", StringType)
     .add("USDPrice", IntegerType)
     
+val toStringM = udf((payload: Array[Byte]) => new String(payload))
 
-val lines = spark.readStream
-  .format("socket")
-  .option("host", "172.18.0.10")
-  .option("port", 9999)
+val lines = spark
+  .readStream
+  .format("kafka")
+  .option("kafka.bootstrap.servers", "kafka-test:9092")
+  .option("subscribe", "skins")
   .load()
 
 val parsedDF = lines
-  .select(from_json(col("value"), schema))
+  .select(from_json(toStringM(col("value")), schema))
 
 
 val skins = parsedDF
-  .select("from_json(value).name", "from_json(value).float", "from_json(value).qualityValue", "from_json(value).marketplaceName", "from_json(value).marketplaceUrl", "from_json(value).USDPrice")
+  .select("from_json(UDF(value)).name", "from_json(UDF(value)).float", "from_json(UDF(value)).qualityValue", "from_json(UDF(value)).marketplaceName", "from_json(UDF(value)).marketplaceUrl", "from_json(UDF(value)).USDPrice")
 
 val skinsTimestamp = skins.withColumn("timestamp", current_timestamp())
 
@@ -36,11 +38,8 @@ val windowedCounts = skinsTimestamp
 
 val query = windowedCounts
   .writeStream
-  .outputMode("append")  
-  .format("parquet") 
-  .option("checkpointLocation", "/spark")
-  .option("path", "/timestampParquet")
-  .trigger(Trigger.ProcessingTime("1 minute")) 
+  .outputMode("complete")  
+  .format("console") 
   .start()
 
 query.awaitTermination()

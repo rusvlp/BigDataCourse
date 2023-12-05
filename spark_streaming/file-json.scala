@@ -18,11 +18,8 @@ val aggregatedFloat = skins.groupBy("name")
 
 val query = aggregatedFloat
   .writeStream
-  .format("parquet")
-  .outputMode("append")
-  .option("checkpointLocation", "/spark") 
-  .option("path", "/avgfloat") 
-  .trigger(Trigger.ProcessingTime("10 seconds"))
+  .format("console")
+  .outputMode("complete")
   .start()
 
 query.awaitTermination()

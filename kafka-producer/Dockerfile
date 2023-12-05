@@ -4,6 +4,8 @@ WORKDIR /
 ADD /kafka-producer-application /kpa
 ADD /start.sh /start.sh
 
+RUN chmod 777 start.sh
+
 WORKDIR /kpa/internal
 
 RUN go build main.go
