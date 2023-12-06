@@ -1,19 +1,16 @@
-FROM golang:latest
-WORKDIR /
+
+FROM golang:1.21.4-bookworm
 
 ADD /kafka-producer-application /kpa
 ADD /start.sh /start.sh
 
-RUN chmod 777 start.sh
-
 WORKDIR /kpa/internal
 
 RUN go build main.go
-RUN mv main ../../main
-
-RUN apt-get update -y
-RUN apt-get install -y iputils-ping
+RUN mv main /
 
 WORKDIR /
 
-CMD ./start.sh
+
+
+CMD ls && pwd && /start.sh 

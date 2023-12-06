@@ -2,6 +2,8 @@ package entity
 
 import (
 	"math/rand"
+	"strings"
+	"time"
 )
 
 const (
@@ -9,16 +11,27 @@ const (
 	DMarket    = "DMarket"
 	CSMoney    = "CSMoney"
 	Tradeit    = "TradeIT GG"
-	CSGOMarket = "CSGO Market"
+	CSGOTM     = "CSGO TM"
 	SkinWallet = "SkinWallet"
+	Yandex     = "Yandex"
+	Google     = "Google"
+	VK         = "VK"
+	YouTube    = "YouTube"
+	MailRu     = "MailRu"
 )
 
 const (
 	BitSkinsURL   = "bitskins.com"
-	DMarktetURL   = "dmarket.com"
+	DMarktetURL   = "dmarket.ru"
 	CSMoneyURL    = "csmoney.com"
 	TradeitURL    = "tradeit.gg"
 	SkinWalletURL = "skinwallet.com"
+	CSGOTMURL     = "csgotm.ru"
+	YandexURL     = "ya.ru"
+	GoogleURL     = "google.com"
+	VKURL         = "vk.ru"
+	YouTubeURL    = "youtube.com"
+	MailRuURL     = "mail.ru"
 )
 
 const (
@@ -30,6 +43,85 @@ const (
 	Ak47Vulkan     = "AK-47 | Vulkan"
 	M4a1sdecimator = "M4A1-S | Decimator"
 )
+
+const (
+	Chrome = "Google Chrome"
+	Opera  = "Opera"
+	MSEdge = "Microsoft Edge"
+	Safari = "Apple Safari"
+	Ishak  = "Internet Explorer"
+)
+
+const (
+	Win10   = "Windows 10"
+	Win8    = "Windows 8"
+	Win7    = "Windows 7"
+	MacOS   = "macOS"
+	Ubuntu  = "Ubuntu Linux"
+	Debian  = "Debian Linux"
+	Ios     = "Apple iOS"
+	Android = "Android"
+)
+
+type WebSiteGenerator struct {
+	sites    map[string]string
+	browsers []string
+	oses     []string
+}
+
+func NewSiteGen() (error, *WebSiteGenerator) {
+
+	sites := make(map[string]string)
+
+	sites[BitSkins] = BitSkinsURL
+	sites[DMarket] = DMarktetURL
+	sites[CSMoney] = CSMoneyURL
+	sites[Tradeit] = TradeitURL
+	sites[SkinWallet] = SkinWalletURL
+	sites[CSGOTM] = CSGOTMURL
+	sites[Yandex] = YandexURL
+	sites[Google] = GoogleURL
+	sites[VK] = VKURL
+	sites[YouTube] = YouTubeURL
+	sites[MailRu] = MailRuURL
+
+	browsers := make([]string, 0)
+
+	browsers = append(browsers,
+		Chrome, MSEdge, Opera, Safari, Ishak,
+	)
+
+	oses := make([]string, 0)
+
+	oses = append(oses,
+		Win7, Win8, Win10, MacOS, Ubuntu, Debian, Ios, Android,
+	)
+
+	sitesGen := &WebSiteGenerator{
+		sites:    sites,
+		browsers: browsers,
+		oses:     oses,
+	}
+
+	return nil, sitesGen
+}
+
+func (sg *WebSiteGenerator) GenerateSite() (error, WebSite) {
+	siteKeys := getKeys(sg.sites)
+
+	site := siteKeys[rand.Intn(len(siteKeys))]
+	siteUrl := sg.sites[site]
+
+	siteEntity := WebSite{
+		Name:        site,
+		Url:         siteUrl,
+		OS:          sg.oses[rand.Intn(len(sg.oses))],
+		Browser:     sg.browsers[rand.Intn(len(sg.browsers))],
+		Region:      domainType(siteUrl),
+		TimeVisited: randomTimeFromYearStart(),
+	}
+	return nil, siteEntity
+}
 
 type SkinPriceGenerator struct {
 	marketplaces map[string]string
@@ -109,4 +201,18 @@ func getKeys[K comparable, V any](m map[K]V) []K {
 	}
 
 	return keys
+}
+
+func domainType(domain string) string {
+	if strings.HasSuffix(domain, ".ru") {
+		return "Russia"
+	}
+	return "International"
+}
+
+func randomTimeFromYearStart() time.Time {
+	yearStart := time.Date(time.Now().Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
+	randomSeconds := rand.Int63n(time.Now().Unix() - yearStart.Unix())
+	randomTime := yearStart.Add(time.Duration(randomSeconds) * time.Second)
+	return randomTime
 }

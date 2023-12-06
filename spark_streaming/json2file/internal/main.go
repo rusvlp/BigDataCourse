@@ -10,6 +10,58 @@ import (
 )
 
 func main() {
+	generateCsvArray()
+}
+
+func generateCsvArray() {
+	_, gen := entity.NewSiteGen()
+
+	maxIts := 10
+
+	if len(os.Args) >= 2 {
+		maxIts, _ = strconv.Atoi(os.Args[1])
+	}
+
+	fmt.Println(entity.GetSiteHeaders())
+
+	for i := 0; i < maxIts; i++ {
+		_, site := gen.GenerateSite()
+		fmt.Println(site.GetValues())
+	}
+
+	_, site := gen.GenerateSite()
+
+	fmt.Println(site.GetValues())
+}
+
+func generateSiteJsonArray() {
+	_, gen := entity.NewSiteGen()
+
+	maxIts := 0
+
+	if len(os.Args) >= 2 {
+		maxIts, _ = strconv.Atoi(os.Args[1])
+	}
+
+	fmt.Print("[")
+	for i := 0; i < maxIts; i++ {
+
+		_, site := gen.GenerateSite()
+
+		siteJson, _ := json.Marshal(site)
+
+		if i == maxIts-1 {
+			fmt.Print(string(siteJson))
+		} else {
+			fmt.Print(string(siteJson) + ",")
+		}
+
+	}
+	fmt.Print("]")
+
+}
+
+func generateJsonToFile() {
 	args := os.Args
 
 	err, skinGen := entity.NewGenerator()

@@ -6,4 +6,4 @@
 #  echo "Это полезная нагрузка. Делаю что-то полезное..."
 #  sleep 5  # Задержка в 5 секунд
 #done
-./main kafka-test 9092 test 5
+./main kafka-test 9092 skins 5

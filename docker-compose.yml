@@ -91,8 +91,7 @@ services:
     environment:
       - INIT_DAEMON_STEP=setup_spark
       - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
-    networks:
-      - spark_kafka
+    
    
       
       
@@ -107,30 +106,20 @@ services:
       - "SPARK_MASTER=spark://spark-master:7077"
       - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
 
-  spark-worker-2:
-    image: bde2020/spark-worker:3.0.0-hadoop3.2
-    container_name: spark-worker-2
-    depends_on:
-      - spark-master
-    ports:
-      - "8081:8081"
-    environment:
-      - "SPARK_MASTER=spark://spark-master:7077"
-      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
-    
+
 
   zookeeper:
     image: wurstmeister/zookeeper
     container_name: zookeeper-test
     ports:
       - 2181:2181
-    networks:
-      - spark_kafka
+    
 
 
   kafka:
     image: wurstmeister/kafka
     container_name: kafka-test
+    restart: always
     ports:
       - 9092:9092
     environment:
@@ -141,8 +130,7 @@ services:
       - zookeeper
     volumes:
       - ./data/kafka:/var/run/docker.sock
-    networks:
-      - spark_kafka
+    
 
 
   kafka-producer:
@@ -152,8 +140,7 @@ services:
       - kafka
     environment:
       SERVICE_PRECONDITION: "kafka-test:9092"
-    networks:
-      - spark_kafka
+    
 
 
   cassandra:
@@ -165,15 +152,6 @@ services:
     ports:
     - "9042:9042"
 
-  mongo:
-    container_name: mongo-1
-    image: mongo
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-    networks:
-      - spark_kafka
 
 networks:
   spark_kafka:

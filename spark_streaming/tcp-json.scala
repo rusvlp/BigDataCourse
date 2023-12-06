@@ -42,5 +42,4 @@ val query = windowedCounts
   .format("console") 
   .start()
 
-query.awaitTermination()
 
